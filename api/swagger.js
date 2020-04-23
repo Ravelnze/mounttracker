@@ -1,7 +1,10 @@
 const swaggerJsdoc = require('swagger-jsdoc');
 
 const options = {
-    apis: ['./controllers/*.js'],
+    apis: [
+        './controllers/*.js', // route definitions
+        './models/*.js'       // model definitions
+    ],
     basePath: '/',
     swaggerDefinition: {
         info: {

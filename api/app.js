@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // controllers
-app.use('/mounts', require('./controllers/mounts'));
+app.use('/mounts', require('./controllers/mount'));
 app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
 // catch 404 and forward to error handler

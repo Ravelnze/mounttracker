@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const queries = require('../repository/mounts/queries');
-const commands = require('../repository/mounts/commands');
+const { check } = require('express-validator');
+const { queries } = require('../repository/mounts/queries');
+const { commands } = require('../repository/mounts/commands');
+const { validate } = require('../common/util');
 
 /**
  * @swagger
@@ -24,7 +26,7 @@ router.get('/', async (req, res, next) => {
 
 /**
  * @swagger
- * /mounts/{id}:
+ * /mounts/id/{id}:
  *    get:
  *      tags:
  *          - Mounts
@@ -38,12 +40,16 @@ router.get('/', async (req, res, next) => {
  *          required: true
  *          description: Id of the Mount
  *      responses:
- *        200:
- *          description: Returns a mount object.
- *        204:
- *          description: No matching item found.
+ *          200:
+ *              description: Returns a mount object.
+ *          204:
+ *              description: No matching item found.
+ *          422:
+ *              description: Invalid input.
  */
-router.get('/:id', async (req, res, next) => {
+router.get('/id/:id', validate([
+    check('id').exists().isNumeric()
+]), async (req, res, next) => {
     await queries.getMountById(req, res);
 });
 
@@ -63,10 +69,14 @@ router.get('/:id', async (req, res, next) => {
  *          required: true
  *          description: Name of the Mount to search by
  *      responses:
- *        200:
- *          description: Returns a list mounts filtered by name.
+ *          200:
+ *              description: Returns a list of mounts filtered by name.
+ *          422:
+ *              description: Invalid parameters.
  */
-router.get('/name/:name', async (req, res, next) => {
+router.get('/name/:name', validate([
+    check('name').isString()
+]), async (req, res, next) => {
     await queries.getMountsByName(req, res);
 });
 
@@ -83,17 +93,18 @@ router.get('/name/:name', async (req, res, next) => {
  *        - in: body
  *          name: mount
  *          schema: 
- *              type: object
- *              properties:
- *                  mountName:
- *                      type: string
+ *              $ref: '#/definitions/MountInput'
  *          required: true
  *          description: Name of the Mount to search by
  *      responses:
- *        200:
- *          description: Returns a list mounts filtered by name.
+ *          201:
+ *              description: Returns the newly created Mount.
+ *          422:
+ *              description: Invalid parameters.
  */
-router.post('/', async (req, res, next) => {
+router.post('/', validate([
+    check('mountName').exists()
+]), async (req, res, next) => {
     await commands.createMount(req, res);
 });
 
@@ -115,17 +126,17 @@ router.post('/', async (req, res, next) => {
  *        - in: body
  *          name: mount
  *          schema: 
- *              type: object
- *              properties:
- *                  mountName:
- *                      type: string
+ *              $ref: '#/definitions/MountInput'
  *      responses:
- *        200:
- *          description: Returns a mount object.
- *        204:
- *          description: No matching item found.
+ *          200:
+ *              description: Returns the number of affected rows.
+ *          422:
+ *              description: Invalid parameters.
  */
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', validate([
+    check('id').exists().isNumeric(),
+    check('mountName').exists()
+]), async (req, res, next) => {
     await commands.updateMount(req, res);
 });
 
@@ -145,12 +156,16 @@ router.put('/:id', async (req, res, next) => {
  *          required: true
  *          description: Id of the Mount to delete
  *      responses:
- *        200:
- *          description: Returns a mount object.
- *        204:
- *          description: No matching item found.
+ *          200:
+ *              description: Returns the number of affected rows.
+ *          204:
+ *              description: No object found to delete.
+ *          422:
+ *              description: Invalid parameters.
  */
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', validate([
+    check('id').exists().isNumeric()
+]), async (req, res, next) => {
     await commands.deleteMount(req, res);
 });
 
