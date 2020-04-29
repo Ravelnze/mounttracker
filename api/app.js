@@ -28,7 +28,13 @@ app.use(cookieParser());
 
 // controllers
 app.use('/mounts', require('./controllers/mount'));
+
+// swagger
 app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerFile));
+app.get('/swagger.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerFile);    
+});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
